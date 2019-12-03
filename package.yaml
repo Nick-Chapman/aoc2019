@@ -1,0 +1,40 @@
+name:                advent
+version:             0.1.0.0
+description:         My solutions for Advent of Code 2019
+license:             BSD3
+author:              Nick Chapman
+maintainer:          nic@amadido.co.uk
+github:              https://github.com/Nick-Chapman/advent.git
+
+extra-source-files:
+- README.md
+
+dependencies:
+- base >= 4.7 && < 5
+- containers
+- extra
+
+default-extensions:
+- GADTs
+- GeneralizedNewtypeDeriving
+- InstanceSigs
+- LambdaCase
+- MultiWayIf
+- NamedFieldPuns
+- NondecreasingIndentation
+- NumericUnderscores
+- RankNTypes
+- ScopedTypeVariables
+
+ghc-options:
+- -Werror
+- -Wall
+- -Wno-name-shadowing
+- -threaded
+- -rtsopts
+- -with-rtsopts=-N
+
+executables:
+  advent.exe:
+    main:                Main.hs
+    source-dirs:         app
