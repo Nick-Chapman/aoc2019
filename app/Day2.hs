@@ -2,7 +2,7 @@
 module Day2 (main) where
 
 import Control.Monad (ap,liftM)
-
+import Control.Monad.Identity
 import Data.List.Split (splitOn)
 import Data.Map.Strict (Map)
 import Data.Maybe (fromJust)
@@ -12,13 +12,17 @@ main :: IO ()
 main = do
   str <- readFile "/home/nic/github/advent/input/day2.input"
   let prog :: [Int] = map read (splitOn "," str)
-  part1 <- run prog machine
+  let part1 = run prog (machine 12 2)
   putStrLn $ "part1 = " <> show part1 -- 6627023
+  let part2 = runs prog
+  putStrLn $ "part2 = " <> show part2 -- 40,19
 
-type Prog = [Int]
+runs :: Prog -> [(Int,Int,Int)]
+runs prog =
+  [ (a,b,res) | a <- [0..99], b <- [0..99], let res = run prog (machine a b), res == 19690720 ]
 
-machine :: Eff Int
-machine = do Write (Pos 1) 12; Write (Pos 2) 2; loop 0
+machine :: Int -> Int -> Eff Int
+machine a b = do Write (Pos 1) a; Write (Pos 2) b; loop 0
   where
     loop p = do
       instr <- Read p
@@ -38,8 +42,6 @@ machine = do Write (Pos 1) 12; Write (Pos 2) 2; loop 0
           Write (Pos target) (f arg1 arg2)
           loop (p+4)
 
-newtype Pos = Pos Int deriving (Eq,Ord,Num,Enum)
-
 data Eff a where
   Ret :: a -> Eff a
   Bind :: Eff a -> (a -> Eff b) -> Eff b
@@ -50,15 +52,22 @@ instance Functor Eff where fmap = liftM
 instance Applicative Eff where pure = return; (<*>) = ap
 instance Monad Eff where return = Ret; (>>=) = Bind
 
+type M a = Identity a --IO in case we need debug
 data State = State { mapping :: Map Pos Int }
 
-run :: Prog -> Eff a -> IO a -- IO in case we need debug
-run prog eff = fst <$> loop state0 eff
+type Prog = [Int]
+
+newtype Pos = Pos Int deriving (Eq,Ord,Num,Enum)
+
+run :: Prog -> Eff a -> a
+run prog eff = res
   where
+    Identity (res,_) = loop state0 eff
+
     state0 :: State
     state0 = State { mapping = Map.fromList (zip [Pos 0..] prog) }
 
-    loop :: State -> Eff a -> IO (a,State)
+    loop :: State -> Eff a -> M (a,State)
     loop s@State{mapping} = \case
       Ret x -> return (x,s)
       Bind e f -> do (v,s) <- loop s e; loop s (f v)
