@@ -8,6 +8,7 @@ import qualified Day3
 import qualified Day4
 import qualified Day5
 import qualified Day6
+import qualified Day7
 
 main :: IO ()
 main = do
@@ -19,4 +20,5 @@ main = do
     , Day4.main
     , Day5.main
     , Day6.main
+    , Day7.main
     ] !! (day - 1)
