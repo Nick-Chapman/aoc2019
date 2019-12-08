@@ -12,8 +12,11 @@ import qualified Day7
 
 main :: IO ()
 main = do
-  [arg] <- getArgs
-  let day :: Int = read arg
+  args <- getArgs
+  mapM_ runDay (case args of [] -> [1..7]; args -> map read args)
+
+runDay :: Int -> IO ()
+runDay day =
   [   Day1.main
     , Day2.main
     , Day3.main

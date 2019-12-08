@@ -13,8 +13,8 @@ main = do
   let [line1,line2] = lines str
   let points1 = pointsOf line1
   let points2 = pointsOf line2
-  putStrLn $ "part1 = " <> show (part1 points1 points2) -- 1626
-  putStrLn $ "part2 = " <> show (part2 points1 points2) -- 27330
+  putStrLn $ "day3, part1 = " <> show (part1 points1 points2) -- 1626
+  putStrLn $ "day3, part2 = " <> show (part2 points1 points2) -- 27330
 
 type Pos = (Int,Int)
 type Step = (Dir,Int)

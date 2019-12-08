@@ -13,9 +13,9 @@ main = do
   str <- readFile "/home/nic/github/advent/input/day2.input"
   let prog :: [Int] = map read (splitOn "," str)
   let part1 = run prog (machine 12 2)
-  putStrLn $ "part1 = " <> show part1 -- 6627023
+  putStrLn $ "day2, part1 = " <> show part1 -- 6627023
   let part2 = runs prog
-  putStrLn $ "part2 = " <> show part2 -- 40,19
+  putStrLn $ "day2, part2 = " <> show part2 -- 40,19
 
 runs :: Prog -> [(Int,Int,Int)]
 runs prog =

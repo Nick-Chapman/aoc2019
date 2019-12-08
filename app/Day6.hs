@@ -10,8 +10,8 @@ main = do
   --let str = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L\nK)YOU\nI)SAN"
   str <- readFile "/home/nic/github/advent/input/day6.input"
   let dm :: DM = Map.fromList $ Prelude.map readEdge $ lines str
-  putStrLn $ "part1 = " <> show (fst $ part1 dm) -- 158090
-  putStrLn $ "part2 = " <> show (part2 dm) -- 241
+  putStrLn $ "day6, part1 = " <> show (fst $ part1 dm) -- 158090
+  putStrLn $ "day6, part2 = " <> show (part2 dm) -- 241
 
 readEdge :: String -> (X,X)
 readEdge s = do

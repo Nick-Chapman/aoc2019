@@ -4,8 +4,8 @@ module Day4 (main) where
 main :: IO ()
 main = do
   let (a,b) = (272091,815432)
-  putStrLn $ "part1 = " <> show (part1 a b) -- 931
-  putStrLn $ "part2 = " <> show (part2 a b) -- 609
+  putStrLn $ "day4, part1 = " <> show (part1 a b) -- 931
+  putStrLn $ "day4, part2 = " <> show (part2 a b) -- 609
 
 part1 :: Int -> Int -> Int
 part1 min max = length $ do
