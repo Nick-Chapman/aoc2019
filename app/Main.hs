@@ -10,11 +10,12 @@ import qualified Day5
 import qualified Day6
 import qualified Day7
 import qualified Day8
+import qualified Day9
 
 main :: IO ()
 main = do
   args <- getArgs
-  mapM_ runDay (case args of [] -> [1..8]; args -> map read args)
+  mapM_ runDay (case args of [] -> [1..9]; args -> map read args)
 
 runDay :: Int -> IO ()
 runDay day =
@@ -26,4 +27,5 @@ runDay day =
     , Day6.main
     , Day7.main
     , Day8.main
+    , Day9.main
     ] !! (day - 1)
