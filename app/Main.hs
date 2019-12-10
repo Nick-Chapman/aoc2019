@@ -20,7 +20,7 @@ main = do
   args <- getArgs
   case args of
     ["--ass"] -> Assemble.main
-    _ -> mapM_ runDay (case args of [] -> [1..9]; args -> map read args)
+    _ -> mapM_ runDay (case args of [] -> [1..10]; args -> map read args)
 
 runDay :: Int -> IO ()
 runDay day =
