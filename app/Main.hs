@@ -12,6 +12,7 @@ import qualified Day7
 import qualified Day8
 import qualified Day9
 import qualified Day10
+import qualified Day11
 
 import qualified Assemble
 
@@ -20,7 +21,7 @@ main = do
   args <- getArgs
   case args of
     ["--ass"] -> Assemble.main
-    _ -> mapM_ runDay (case args of [] -> [1..10]; args -> map read args)
+    _ -> mapM_ runDay (case args of [] -> [1..11]; args -> map read args)
 
 runDay :: Int -> IO ()
 runDay day =
@@ -34,4 +35,5 @@ runDay day =
     , Day8.main
     , Day9.main
     , Day10.main
+    , Day11.main
     ] !! (day - 1)

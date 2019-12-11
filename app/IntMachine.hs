@@ -1,6 +1,8 @@
 
 module IntMachine(
-  Prog(..), Input(..), Output(..), runMachine,
+  Prog(..), Input(..), Output(..),
+  exec,
+  runMachine,
   ) where
 
 import Control.Monad (ap,liftM)
@@ -12,7 +14,13 @@ newtype Prog = Prog [Int] deriving (Show)
 newtype Input = Input [Int] deriving (Show)
 newtype Output = Output [Int] deriving (Show,Eq)
 
-runMachine :: Prog -> Input -> IO Output
+
+exec :: Prog -> Input -> Output
+exec prog input =
+  run prog input machine
+
+
+runMachine :: Prog -> Input -> IO Output -- rename execIO
 runMachine prog input = do
   if debug
     then runIO prog input machine
