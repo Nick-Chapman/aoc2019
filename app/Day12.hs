@@ -27,10 +27,13 @@ part1 n pss = energy (iterate step (init pss) !! n)
 
 part2slow :: [[Int]] -> Int
 part2slow pss = do
-  let states :: [State] = iterate step (init pss)
+  let state0 = init pss
+  let states :: [State] = iterate step state0
   let sets :: [Set State] = scanl (flip Set.insert) Set.empty states
   let sizes :: [Int] = map Set.size sets
-  last (takeWhileIncreasing sizes)
+  let orig_res = last (takeWhileIncreasing sizes)
+  let res = fst $ head $ filter ((== state0).snd) (zip [1..] (tail states))
+  check res orig_res
 
 takeWhileIncreasing :: [Int] -> [Int]
 takeWhileIncreasing = \case
@@ -79,9 +82,7 @@ stepD all =
 part2 :: [[Int]] -> Int
 part2 pss = foldl1 lcm -- least common multipler (in prelude would you believe!)
   [ res
-  | d0 <- initD pss
-  , let states :: [DState] = iterate stepD d0
-  , let sets :: [Set DState] = scanl (flip Set.insert) Set.empty states
-  , let sizes :: [Int] = map Set.size sets
-  , let res = last (takeWhileIncreasing sizes)
+  | state0 <- initD pss
+  , let states :: [DState] = iterate stepD state0
+  , let res = fst $ head $ filter ((== state0).snd) (zip [1..] (tail states))
   ]
