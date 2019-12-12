@@ -13,18 +13,19 @@ import qualified Day8
 import qualified Day9
 import qualified Day10
 import qualified Day11
+import qualified Day12
 
 import qualified Assemble
 
 main :: IO ()
 main = do
-  args <- getArgs
-  case args of
+  getArgs >>= \case
     ["--ass"] -> Assemble.main
-    _ -> mapM_ runDay (case args of [] -> [1..11]; args -> map read args)
+    [] -> mapM_ id mains
+    args -> mapM_ (\day -> mains !! (read day - 1)) args
 
-runDay :: Int -> IO ()
-runDay day =
+mains :: [IO ()]
+mains =
   [   Day1.main
     , Day2.main
     , Day3.main
@@ -36,4 +37,5 @@ runDay day =
     , Day9.main
     , Day10.main
     , Day11.main
-    ] !! (day - 1)
+    , Day12.main
+    ]
