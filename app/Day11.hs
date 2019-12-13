@@ -2,7 +2,6 @@
 module Day11 (main) where
 
 import Data.List (maximum,minimum)
-import Data.List.Split (splitOn)
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
@@ -10,7 +9,7 @@ import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  prog <- (IM.Prog . map read . splitOn ",") <$> readFile "/home/nic/github/advent/input/day11.input"
+  prog <- IM.loadFile "/home/nic/github/advent/input/day11.input"
   let states1 = runRobot Part1 prog
   let answer1 = countPaintedPositions (last states1)
   putStrLn $ "day11, part1 = " <> show (check answer1 2129)
@@ -19,11 +18,11 @@ main = do
 
 runRobot :: Part -> IM.Prog -> [Robot]
 runRobot part prog = do
-  let (IM.Output outputs) = IM.exec prog (IM.Input inputs)
-      instructions        = chopInstructions outputs
-      states :: [Robot]   = scanl stepRobot (robot0 part) instructions
-      sensed :: [Col]     = map currentCol states
-      inputs :: [Int]     = map (\case Black -> 0; White -> 1) sensed
+  let outputs           = IM.exec prog inputs
+      instructions      = chopInstructions outputs
+      states :: [Robot] = scanl stepRobot (robot0 part) instructions
+      sensed :: [Col]   = map currentCol states
+      inputs :: [Int]   = map (\case Black -> 0; White -> 1) sensed
   states
 
 data Robot = Robot -- State, plus knowlewdge of what is painted

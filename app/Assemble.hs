@@ -41,7 +41,7 @@ main_vis = do
 visualize :: Asm () -> [Int] -> IO ()
 visualize asm input = do
   let prog = assemble asm
-  let sos  = IM.execD prog (IM.Input input)
+  let sos  = IM.execD prog input
   mapM_ print sos
 
 
@@ -56,22 +56,22 @@ testA asm = testP (assemble asm)
 
 testP :: IM.Prog -> [Int] -> String -> [Int] -> IO ()
 testP prog input tag expected = do
-  runCheckUsingLoader tag 0 prog (IM.Input input) expected
-  --runCheckUsingLoader tag 1 prog (IM.Input input) expected -- breaks check below
-  --runCheckUsingLoader tag 2 prog (IM.Input input) expected
+  runCheckUsingLoader tag 0 prog input expected
+  --runCheckUsingLoader tag 1 prog input expected -- breaks check below
+  --runCheckUsingLoader tag 2 prog input expected
   return ()
 
-runCheckUsingLoader :: String -> Int -> IM.Prog -> IM.Input -> [Int] -> IO ()
-runCheckUsingLoader tag n (IM.Prog prog) (IM.Input input) expected =
-  if n <= 0 then printRunCheck tag (IM.Prog prog) (IM.Input input) expected
-  else runCheckUsingLoader ("loader+"<>tag) (n-1) (assemble loader) (IM.Input (length prog : prog ++ input)) expected
+runCheckUsingLoader :: String -> Int -> IM.Prog -> [Int] -> [Int] -> IO ()
+runCheckUsingLoader tag n (IM.Prog prog) input expected =
+  if n <= 0 then printRunCheck tag (IM.Prog prog) input expected
+  else runCheckUsingLoader ("loader+"<>tag) (n-1) (assemble loader) (length prog : prog ++ input) expected
 
-printRunCheck :: String -> IM.Prog -> IM.Input -> [Int] -> IO ()
+printRunCheck :: String -> IM.Prog -> [Int] -> [Int] -> IO ()
 printRunCheck tag prog input expected = do
   --print (tag, prog, input)
   let output = IM.exec prog input
-  print (tag<>"/out", check output (IM.Output expected))
-  --print (tag<>"/good", output == IM.Output expected)
+  print (tag<>"/out", check output expected)
+  --print (tag<>"/good", output == expected)
   return ()
 
 check :: (Eq a, Show a) => a -> a -> a

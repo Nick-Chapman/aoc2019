@@ -1,50 +1,52 @@
 
 module Day7 (main) where
 
-import Control.Monad (ap,liftM)
-import Data.List.Split (splitOn)
-import Data.Map (Map)
-import Data.Maybe (fromJust)
-import qualified Data.Map as Map
+import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  str7 <- readFile "/home/nic/github/advent/input/day7.input"
-  let prog7 :: [Int] = map read (splitOn "," str7)
-  putStrLn $ "day7, part1 = " <> show (check (part1 prog7) 21760)
-  putStrLn $ "day7, part2 = " <> show (check (part2 prog7) 69816958)
+  prog <- IM.loadFile "/home/nic/github/advent/input/day7.input"
+  putStrLn $ "day7, part1 = " <> show (check (part1 prog) 21760)
+  putStrLn $ "day7, part2 = " <> show (check (part2 prog) 69816958)
 
 check :: (Eq a, Show a) => a -> a -> a
 check x y = if x == y then x else error (show (x,y))
 
-part1 :: Prog -> Int
+part1 :: IM.Prog -> Int
 part1 prog = maximum [ config settings | settings <- perms [0,1,2,3,4] ]
   where
     config settings = do
       let [a,b,c,d,e] = settings
-      let [out1] = run [a,0] prog machine
-      let [out2] = run [b,out1] prog machine
-      let [out3] = run [c,out2] prog machine
-      let [out4] = run [d,out3] prog machine
-      let [out5] = run [e,out4] prog machine
+      let [out1] = IM.exec prog [a,0]
+      let [out2] = IM.exec prog [b,out1]
+      let [out3] = IM.exec prog [c,out2]
+      let [out4] = IM.exec prog [d,out3]
+      let [out5] = IM.exec prog [e,out4]
       out5
 
-part2 :: Prog -> Int
+part2 :: IM.Prog -> Int
 part2 prog =
   maximum [ config settings | settings <- perms [5,6,7,8,9] ]
   where
     config settings =
       let [a,b,c,d,e] = settings in
-      let out1 = run (a:0:out5) prog machine
-          out2 = run (b:  out1) prog machine
-          out3 = run (c:  out2) prog machine
-          out4 = run (d:  out3) prog machine
-          out5 = run (e:  out4) prog machine in
+      let out1 = IM.exec prog (a:0:out5)
+          out2 = IM.exec prog (b:  out1)
+          out3 = IM.exec prog (c:  out2)
+          out4 = IM.exec prog (d:  out3)
+          out5 = IM.exec prog (e:  out4) in
       last out5
 
 perms :: [a] -> [[a]]
 perms = \case [] -> [[]]; (x:xs) -> concatMap (inserts x) (perms xs)
   where inserts x = \case [] -> [[x]]; (y:ys) -> (x:y:ys) : map (y:) (inserts x ys)
+
+
+{-
+-- original Day7 machine....
+
+_exec :: Prog -> [Int] -> [Int]
+_exec = run machine
 
 machine :: Eff ()
 machine = loop 0
@@ -113,7 +115,7 @@ decodeMode = \case
   1 -> Immediate
   n -> error $ "unknown mode: " <> show n
 
-type Prog = [Int]
+newtype Prog = Prog [Int] deriving (Show)
 type Input = [Int]
 type Output = [Int]
 
@@ -133,8 +135,8 @@ instance Monad Eff where return = Ret; (>>=) = Bind
 
 data State = State { input :: Input, memory :: Map Pos Int }
 
-run :: Input -> Prog -> Eff () -> Output
-run input0 prog = loop state0 (\() _ -> [])
+run :: Eff () -> Prog -> Input -> Output
+run eff (Prog prog) input0 = loop state0 (\() _ -> []) eff
   where
     state0 = State { input = input0, memory = Map.fromList (zip [Pos 0..] prog) }
     loop :: State -> (a -> State -> Output) -> Eff a -> Output
@@ -148,3 +150,4 @@ run input0 prog = loop state0 (\() _ -> [])
         case input s of
           [] -> error "run out of input"
           x:input' -> k x (s { input = input' })
+-}

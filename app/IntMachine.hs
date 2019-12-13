@@ -1,18 +1,26 @@
 
-module IntMachine(
-  Prog(..), Input(..), Output(..),
-  exec, execD,
+module IntMachine( -- This is the Day9 machine
+
+  Prog(..),
+  loadFile,
+  exec,
+  execD,
+
   ) where
 
 import Control.Monad (ap,liftM)
+import Data.List.Split (splitOn)
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as Map
 
-newtype Prog = Prog [Int] deriving (Show)
-newtype Input = Input [Int] deriving (Show)
-newtype Output = Output [Int] deriving (Show,Eq)
+loadFile :: String -> IO Prog
+loadFile s = (Prog . map read . splitOn ",") <$> readFile s
 
+newtype Prog = Prog [Int] deriving (Show)
+
+type Input = [Int]
+type Output = [Int]
 
 data Act = ActOutput Int | ActExec Pos State
 instance Show Act where show = prettyAct
@@ -26,7 +34,7 @@ prettyAct = \case
 exec :: Prog -> Input -> Output
 exec prog input = do
   let acts = run prog input machine
-  Output $ [ x | act <- acts, ActOutput x <- return act ]
+  [ x | act <- acts, ActOutput x <- return act ]
 
 execD :: Prog -> Input -> [Act]
 execD prog input = run prog input machine
@@ -140,7 +148,7 @@ instance Monad Eff where return = Ret; (>>=) = Bind
 data State = State { input :: [Int], memory :: Map Pos Int, relbase :: Int } deriving (Show)
 
 run :: Prog -> Input -> Eff () -> [Act]
-run (Prog prog) (Input input0) machine = loop state0 (\() _ -> []) machine
+run (Prog prog) input0 machine = loop state0 (\() _ -> []) machine
   where
     state0 = State { input = input0, memory = Map.fromList (zip [Pos 0..] prog), relbase = 0 }
     loop :: State -> (a -> State -> [Act]) -> Eff a -> [Act]
