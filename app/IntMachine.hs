@@ -3,8 +3,12 @@ module IntMachine( -- This is the Day9 machine
 
   Prog(..),
   loadFile,
-  exec,
-  execD,
+
+  Process(..),
+  
+  exec,  -- [Int] -> [Int]
+  execA, -- [Int] -> [Act]
+  execP, -- Process
 
   ) where
 
@@ -14,34 +18,51 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as Map
 
+newtype Prog = Prog [Int] deriving (Show)
+
 loadFile :: String -> IO Prog
 loadFile s = (Prog . map read . splitOn ",") <$> readFile s
 
-newtype Prog = Prog [Int] deriving (Show)
-
-type Input = [Int]
-type Output = [Int]
-
-data Act = ActOutput Int | ActExec Pos State
-instance Show Act where show = prettyAct
-
-prettyAct :: Act -> String
-prettyAct = \case
-  ActOutput x -> "Output: " <> show x
-  ActExec _pos _state -> "pretty-exec...todo"
-
-
-exec :: Prog -> Input -> Output
+-- | Execute a program on a list of input Ints, producing a list of output Ints
+exec :: Prog -> [Int] -> [Int]
 exec prog input = do
-  let acts = run prog input machine
+  let acts = execA prog input
   [ x | act <- acts, ActOutput x <- return act ]
 
-execD :: Prog -> Input -> [Act]
-execD prog input = run prog input machine
+-- | Execute a program on a list of input ints, producing a list of Acts
+execA :: Prog -> [Int] -> [Act]
+execA prog xs = loop xs (execP prog)
+  where
+    loop xs = \case
+      Halt -> []
+      Internal (pos,state) p -> ActExec pos state : loop xs p
+      Output x p -> ActOutput x : loop xs p
+      Input f -> case xs of
+        [] -> error "run out of input"
+        x:xs -> loop xs (f x)
 
+-- | Execute a program, returning an Input/Output Process
+execP :: Prog -> Process
+execP = runEff theMachine
 
-machine :: Eff ()
-machine = loop 0
+-- | A Input/Output either requests Input, or generates Output, until halting
+data Process
+  = Halt
+  | Internal (Pos,State) Process -- ignore when not debugging!
+  | Output Int Process
+  | Input (Int -> Process)
+
+-- | An Act is either an Output-Int, or an internal instruction-execution Pos/State (for debugging)
+data Act = ActOutput Int | ActExec Pos State deriving Show
+--instance Show Act where show = prettyAct
+
+{-prettyAct :: Act -> String
+prettyAct = \case
+  ActOutput x -> "Output: " <> show x
+  ActExec _pos _state -> "pretty-exec...todo"-}
+
+theMachine :: Eff ()
+theMachine = loop 0
   where
     loop pos = do
       PrintState pos
@@ -50,7 +71,7 @@ machine = loop 0
       let op = decodeOp (10*t+u)
       let mode1:mode2:mode3:_ = map decodeMode rest
       case op of
-        Halt -> return ()
+        OpHalt -> return ()
         Inp -> do
           target <- ReadMem (pos+1)
           v <- GetInput
@@ -101,7 +122,7 @@ splitDigits n = n `mod` 10 : splitDigits (n `div` 10)
 
 data Op
   = Bin (Int -> Int -> Int)
-  | Halt | Inp | Out
+  | OpHalt | Inp | Out
   | JumpIf (Int -> Bool)
   | OpAdjustRelBase
 
@@ -116,7 +137,7 @@ decodeOp = \case
   7 -> Bin (\a b -> if a < b then 1 else 0)
   8 -> Bin (\a b -> if a == b then 1 else 0)
   9 -> OpAdjustRelBase
-  99 -> Halt
+  99 -> OpHalt
   n -> error $ "unknown op: " <> show n
 
 data Mode = Positional | Immediate | Relative
@@ -145,23 +166,20 @@ instance Functor Eff where fmap = liftM
 instance Applicative Eff where pure = return; (<*>) = ap
 instance Monad Eff where return = Ret; (>>=) = Bind
 
-data State = State { input :: [Int], memory :: Map Pos Int, relbase :: Int } deriving (Show)
+data State = State { memory :: Map Pos Int, relbase :: Int } deriving (Show)
 
-run :: Prog -> Input -> Eff () -> [Act]
-run (Prog prog) input0 machine = loop state0 (\() _ -> []) machine
+runEff :: Eff () -> Prog -> Process
+runEff eff (Prog prog) = loop state0 (\() _ -> Halt) eff
   where
-    state0 = State { input = input0, memory = Map.fromList (zip [Pos 0..] prog), relbase = 0 }
-    loop :: State -> (a -> State -> [Act]) -> Eff a -> [Act]
+    state0 = State { memory = Map.fromList (zip [Pos 0..] prog), relbase = 0 }
+    loop :: State -> (a -> State -> Process) -> Eff a -> Process
     loop s k = \case
       Ret x -> k x s
       Bind e f -> loop s (\v s -> loop s k (f v)) e
       ReadMem pos -> k (fromMaybe 0 $ Map.lookup pos (memory s)) s
       WriteMem pos v -> k () (s { memory = Map.insert pos v (memory s) })
-      PutOutput v -> ActOutput v : k () s
+      PutOutput v -> Output v (k () s)
       AdjustRelBase v -> k () (s { relbase = v + relbase s })
       GetRelBase -> k (Pos (relbase s)) s
-      GetInput ->
-        case input s of
-          [] -> error "run out of input"
-          x:input' -> k x (s { input = input' })
-      PrintState pos -> ActExec pos s : k () s
+      GetInput -> Input $ \x -> k x s
+      PrintState pos -> Internal (pos,s) (k () s)

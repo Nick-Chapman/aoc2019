@@ -41,7 +41,7 @@ main_vis = do
 visualize :: Asm () -> [Int] -> IO ()
 visualize asm input = do
   let prog = assemble asm
-  let sos  = IM.execD prog input
+  let sos  = IM.execA prog input
   mapM_ print sos
 
 
