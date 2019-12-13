@@ -1,8 +1,7 @@
 
 module IntMachine(
   Prog(..), Input(..), Output(..),
-  exec,
-  runMachine,
+  exec, execD,
   ) where
 
 import Control.Monad (ap,liftM)
@@ -15,18 +14,23 @@ newtype Input = Input [Int] deriving (Show)
 newtype Output = Output [Int] deriving (Show,Eq)
 
 
+data Act = ActOutput Int | ActExec Pos State
+instance Show Act where show = prettyAct
+
+prettyAct :: Act -> String
+prettyAct = \case
+  ActOutput x -> "Output: " <> show x
+  ActExec _pos _state -> "pretty-exec...todo"
+
+
 exec :: Prog -> Input -> Output
-exec prog input =
-  run prog input machine
+exec prog input = do
+  let acts = run prog input machine
+  Output $ [ x | act <- acts, ActOutput x <- return act ]
 
+execD :: Prog -> Input -> [Act]
+execD prog input = run prog input machine
 
-runMachine :: Prog -> Input -> IO Output -- rename execIO
-runMachine prog input = do
-  if debug
-    then runIO prog input machine
-    else return $ run prog input machine
-    where
-      debug = False
 
 machine :: Eff ()
 machine = loop 0
@@ -135,58 +139,21 @@ instance Monad Eff where return = Ret; (>>=) = Bind
 
 data State = State { input :: [Int], memory :: Map Pos Int, relbase :: Int } deriving (Show)
 
-run :: Prog -> Input -> Eff () -> Output
-run (Prog prog) (Input input0) machine = Output $ loop state0 (\() _ -> []) machine
+run :: Prog -> Input -> Eff () -> [Act]
+run (Prog prog) (Input input0) machine = loop state0 (\() _ -> []) machine
   where
     state0 = State { input = input0, memory = Map.fromList (zip [Pos 0..] prog), relbase = 0 }
-    loop :: State -> (a -> State -> [Int]) -> Eff a -> [Int]
+    loop :: State -> (a -> State -> [Act]) -> Eff a -> [Act]
     loop s k = \case
       Ret x -> k x s
       Bind e f -> loop s (\v s -> loop s k (f v)) e
       ReadMem pos -> k (fromMaybe 0 $ Map.lookup pos (memory s)) s
       WriteMem pos v -> k () (s { memory = Map.insert pos v (memory s) })
-      PutOutput v -> v : k () s
+      PutOutput v -> ActOutput v : k () s
       AdjustRelBase v -> k () (s { relbase = v + relbase s })
       GetRelBase -> k (Pos (relbase s)) s
       GetInput ->
         case input s of
           [] -> error "run out of input"
           x:input' -> k x (s { input = input' })
-      PrintState _ -> k () s
-
-runIO :: Prog -> Input -> Eff () -> IO Output
-runIO (Prog prog) (Input input0) machine = Output <$> loop state0 (\() _ -> return []) machine
-  where
-    state0 = State { input = input0, memory = Map.fromList (zip [Pos 0..] prog), relbase = 0 }
-    loop :: State -> (a -> State -> IO [Int]) -> Eff a -> IO [Int]
-    loop s k = \case
-      Ret x -> k x s
-      Bind e f -> loop s (\v s -> loop s k (f v)) e
-      ReadMem pos -> do
-        let v = fromMaybe 0 $ Map.lookup pos (memory s)
-        putStrLn $ "ReadMem, " <> show (pos,v)
-        k v s
-      WriteMem pos v -> do
-        putStrLn $ "WriteMem, " <> show (pos,v)
-        k () (s { memory = Map.insert pos v (memory s) })
-      PutOutput v -> do
-        putStrLn $ "PutOutput, " <> show v
-        (v :) <$> k () s
-      AdjustRelBase v -> do
-        let r1 = relbase s
-        let r2 = v + relbase s
-        putStrLn $ "AdjustRelBase, " <> show (r1,v,r2)
-        k () (s { relbase = r2 })
-      GetRelBase -> do
-        let v = Pos (relbase s)
-        putStrLn $ "GetRelBase, " <> show v
-        k v s
-      GetInput ->
-        case input s of
-          [] -> error "run out of input"
-          x:input' -> do
-            putStrLn $ "GetInput, " <> show x
-            k x (s { input = input' })
-      PrintState pos -> do
-        print (pos,s)
-        k () s
+      PrintState pos -> ActExec pos s : k () s

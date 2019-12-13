@@ -10,8 +10,14 @@ import Control.Monad.Fix (MonadFix,mfix)
 import Prelude hiding (LT,EQ)
 import qualified IntMachine as IM
 
+
 main :: IO ()
 main = do
+  -- _main_regs
+  main_vis
+
+_main_regs :: IO ()
+_main_regs = do
   testA asm1 [42,13] "asm1" [110]
   testA asm2 [4,42,13,-1,1000] "asm2" [1054]
   testQ quine1 "quine1"
@@ -27,6 +33,18 @@ main = do
       (IM.Prog asm1') = assemble asm1
 
 
+main_vis :: IO ()
+main_vis = do
+  putStrLn "visualize..."
+  visualize asm1 [42,13]
+
+visualize :: Asm () -> [Int] -> IO ()
+visualize asm input = do
+  let prog = assemble asm
+  let sos  = IM.execD prog (IM.Input input)
+  mapM_ print sos
+
+
 testQ :: Asm () -> String -> IO ()
 testQ asm tag = do
   let prog@(IM.Prog xoutput) = assemble asm
@@ -39,7 +57,7 @@ testA asm = testP (assemble asm)
 testP :: IM.Prog -> [Int] -> String -> [Int] -> IO ()
 testP prog input tag expected = do
   runCheckUsingLoader tag 0 prog (IM.Input input) expected
-  --runCheckUsingLoader tag 1 prog (IM.Input input) expected
+  --runCheckUsingLoader tag 1 prog (IM.Input input) expected -- breaks check below
   --runCheckUsingLoader tag 2 prog (IM.Input input) expected
   return ()
 
@@ -50,11 +68,14 @@ runCheckUsingLoader tag n (IM.Prog prog) (IM.Input input) expected =
 
 printRunCheck :: String -> IM.Prog -> IM.Input -> [Int] -> IO ()
 printRunCheck tag prog input expected = do
-  print (tag, prog, input)
-  output <- IM.runMachine prog input
-  print (tag<>"/out", output)
-  print (tag<>"/good", output == IM.Output expected)
+  --print (tag, prog, input)
+  let output = IM.exec prog input
+  print (tag<>"/out", check output (IM.Output expected))
+  --print (tag<>"/good", output == IM.Output expected)
   return ()
+
+check :: (Eq a, Show a) => a -> a -> a
+check x y = if x == y then x else error (show (x,y))
 
 
 asm1 :: Asm () --fixed sum
