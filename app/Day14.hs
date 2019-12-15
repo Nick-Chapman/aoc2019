@@ -58,19 +58,50 @@ main = do
   putStrLn $ "day14, part1 (example 5) = " <> show (check (part1 x5) 2210736)
   putStrLn $ "day14, part1 (ANSWER) = " <> show (check (part1 input) 443537)
 
+  putStrLn $ "day14, part2 (example 5) = " <> show (check (part2 x5) 460664)
+  putStrLn $ "day14, part2 (ANSWER) = " <> show (part2 input)
 
 
 part1 :: String -> Int
-part1 s = do
-  let reactions = parseReactions s
-  let [("ORE",n)] = Map.toList $ last $ unroll reactions
-  n
+part1 s = oreNeededForFuel (parseReactions s) 1
+
+part2 :: String -> Int
+part2 s = do
+  let f = oreNeededForFuel (parseReactions s)
+  let max = 1_000_000_000_000
+  findMaxArgForResBelowN f max
+
+
+findMaxArgForResBelowN :: (Int -> Int) -> Int -> Int
+findMaxArgForResBelowN f max = searchOpen 1 0 1
+  where
+  -- Horrible! Doing `div 4` !!! Clean this up.
+
+    searchOpen :: Int -> Int -> Int -> Int
+    searchOpen step low i = do
+      let tooHigh = f i > max
+      if tooHigh
+        then if (step==1)
+             then check' "A" (i-1) low
+             else search (step `div` 4) low (low + step `div` 2 + step `div` 4) i
+        else searchOpen (2*step) low (i+step)
+
+    search :: Int -> Int -> Int -> Int -> Int
+    search step low i high = do
+      let tooHigh = f i > max
+      if (step == 1)
+        then if tooHigh then check' "B" (i-1) low else check' "C" i (high-1)
+        else
+        if tooHigh
+        then search (step `div` 2) low (i-step `div` 2) i
+        else search (step `div` 2) i (i+step `div` 2) high
+
 
 explore :: String -> IO ()
 explore s = do
   let reactions = parseReactions s
   print (dfs reactions)
-  mapM_ print (unroll reactions)
+  mapM_ print (unroll reactions 1)
 
 
 parseReactions :: String -> Reactions
@@ -99,8 +130,16 @@ scaleInputs n = Map.map (*n)
 addInputs :: Inputs -> Inputs -> Inputs
 addInputs = Map.unionWith (+)
 
-unroll :: Reactions -> [Inputs]
-unroll reactions = steps (Map.fromList [("FUEL",1)])  where
+
+oreNeededForFuel :: Reactions -> Int -> Int
+oreNeededForFuel reactions nFuel = do
+  let [("ORE",nOre)] = Map.toList $ last $ unroll reactions nFuel
+  nOre
+
+unroll :: Reactions -> Int -> [Inputs]
+unroll reactions i = res where
+
+  res  = steps (Map.fromList [("FUEL",i)])
 
   steps :: Inputs -> [Inputs]
   steps inputs =
@@ -145,4 +184,7 @@ dfs reactions = walk [] "FUEL"
 
 
 check :: (Eq a, Show a) => a -> a -> a
-check x y = if x == y then x else error (show (x,y))
+check = check' "check"
+
+check' :: (Eq a, Show a) => String -> a -> a -> a
+check' tag x y = if x == y then x else error (show (tag,x,y))
