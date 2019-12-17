@@ -48,6 +48,7 @@ check x y = if x == y then x else error (show (x,y))
 
 visualize :: (Int, (Dir,State)) -> String
 visualize (i, (dir,State{me,goal,floor,walls})) = do
+  let unexplored = image neighbors floor \\ (floor `union` walls)
   let xys = Set.toList (floor `union` walls)
   let xs = map fst xys
   let ys = map snd xys
@@ -66,6 +67,7 @@ visualize (i, (dir,State{me,goal,floor,walls})) = do
             | p == (0,0)        = 'x'
             | p `elem` floor    = ' '
             | p `elem` walls    = '#'
+            | p `elem` unexplored = '?'
             | otherwise         = '.'
       return char)
 
