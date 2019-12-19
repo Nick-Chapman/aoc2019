@@ -9,7 +9,7 @@ import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/github/advent/input/day11.input"
+  prog <- IM.loadFile "/home/nic/code/advent/input/day11.input"
   let states1 = runRobot Part1 prog
   let answer1 = countPaintedPositions (last states1)
   putStrLn $ "day11, part1 = " <> show (check answer1 2129)

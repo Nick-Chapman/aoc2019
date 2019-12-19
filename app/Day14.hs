@@ -49,7 +49,7 @@ main = do
         "7 XCVML => 6 RJRHP",
         "5 BHXH, 4 VRPVC => 5 LTCX"]
 
-  input <- readFile "/home/nic/github/advent/input/day14.input"
+  input <- readFile "/home/nic/code/advent/input/day14.input"
 
   let _ = explore x2
 

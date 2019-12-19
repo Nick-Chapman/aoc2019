@@ -11,12 +11,12 @@ import qualified Data.Map.Strict as Map
 main :: IO ()
 main = do
 
-  str2 <- readFile "/home/nic/github/advent/input/day2.input"
+  str2 <- readFile "/home/nic/code/advent/input/day2.input"
   let prog2 :: [Int] = map read (splitOn "," str2)
   let (day2,_) = run 0 prog2 day2machine
   when (day2 /= 6627023) $ error "day2 machine broken"
 
-  str5 <- readFile "/home/nic/github/advent/input/day5.input"
+  str5 <- readFile "/home/nic/code/advent/input/day5.input"
   let prog5 :: [Int] = map read (splitOn "," str5)
 
   let ((),part1) = run 1 prog5 machine

@@ -9,7 +9,7 @@ main :: IO ()
 main = do
   -- let line1 = "R75,D30,R83,U83,L12,D49,R71,U7,L72"
   -- let line2 = "U62,R66,U55,R34,D71,R55,D58,R83"
-  str <- readFile "/home/nic/github/advent/input/day3.input"
+  str <- readFile "/home/nic/code/advent/input/day3.input"
   let [line1,line2] = lines str
   let points1 = pointsOf line1
   let points2 = pointsOf line2
