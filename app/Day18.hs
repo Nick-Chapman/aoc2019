@@ -71,9 +71,10 @@ main = do
   --_explore2 p2_x4
 
   --_input2 <- readFile "/home/nic/code/advent/input/day18.input2"
-  --_explore2 _input2
-  --putStrLn $ "day18, part2 (ANSWER) = " <> show (check (part2 _input2) 999)
+  --_explore2 _input2 -- 2086 (takes about 10 minutes!)
+  --putStrLn $ "day18, part2 (ANSWER) = " <> show (check (part2 _input2) 2086)
 
+  return ()
 
 part2 :: String -> Int
 part2 s = length $ fst $ part2waves s
@@ -90,34 +91,53 @@ part2waves :: String -> ([Set State2],[Set State2])
 part2waves s = do
   let world = parseWorld s
   let (a,b,c,d) = findEntrances4 world
-  let state0 = (a,b,c,d,Set.empty)
+  let state0 = [ (a,b,c,d,rob,Set.empty) | rob <- anyRob ]
   let allKeys = Set.fromList [ k | (_,Key k) <- Map.toList world ]
-  let continue set = allKeys `notElem` Set.map (\(_,_,_,_,found) -> found) set
-  span continue $ waves (steps2 world) (Set.singleton state0)
+  let continue set = allKeys `notElem` Set.map (\(_,_,_,_,_,found) -> found) set
+  span continue $ waves (steps2 world) (Set.fromList state0)
 
 findEntrances4 :: World -> (Pos,Pos,Pos,Pos)
 findEntrances4 w =
   case [ pos | (pos,Entrance) <- Map.toList w ]
   of [a,b,c,d] -> (a,b,c,d); _ -> error "findEntrances4"
 
-type State2 = (Pos,Pos,Pos,Pos,Found) -- element of search space
+type State2 = (Pos,Pos,Pos,Pos,Rob,Found) -- element of search space
+
+data Rob = Rob1 | Rob2 | Rob3 | Rob4 deriving (Eq,Ord,Show) -- who may move
 
 steps2 :: World -> State2 -> [State2]
 steps2 w s2  =
   [ s2'
   | dir <- [N,S,E,W]
-  , (s,up) <- chooseRobot s2
+  , let (s,up) = chooseRobot w s2
   , Just s' <- [step w s dir]
-  , let s2' = up s'
+  , s2' <- up s'
   ]
 
-chooseRobot :: State2 -> [(State, State -> State2)]
-chooseRobot (a,b,c,d,found) =
-  [ ((a,found), \(a,found) -> (a,b,c,d,found))
-  , ((b,found), \(b,found) -> (a,b,c,d,found))
-  , ((c,found), \(c,found) -> (a,b,c,d,found))
-  , ((d,found), \(d,found) -> (a,b,c,d,found))
-  ]
+chooseRobot :: World -> State2 -> (State, State -> [State2])
+chooseRobot w (a,b,c,d,rob,found) =
+  case rob of
+    Rob1 -> ((a,found), \(a,found) -> maybeSwitch w a (a,b,c,d,rob,found))
+    Rob2 -> ((b,found), \(b,found) -> maybeSwitch w b (a,b,c,d,rob,found))
+    Rob3 -> ((c,found), \(c,found) -> maybeSwitch w c (a,b,c,d,rob,found))
+    Rob4 -> ((d,found), \(d,found) -> maybeSwitch w d (a,b,c,d,rob,found))
+
+maybeSwitch :: World -> Pos -> State2 -> [State2]
+maybeSwitch w pos (a,b,c,d,rob,found) =
+  [ (a,b,c,d,rob',found) | rob' <- if onkey w pos then anyRob else [rob] ]
+
+anyRob :: [Rob]
+anyRob = [Rob1,Rob2,Rob3,Rob4]
+
+onkey :: World -> Pos -> Bool
+onkey world pos = do
+  let e = fromJust $ Map.lookup pos world
+  case e of
+        Entrance -> False
+        Floor -> False
+        Key _ -> True
+        Door _ -> False
+        Wall -> False
 
 
 _explore1 :: String -> IO ()
