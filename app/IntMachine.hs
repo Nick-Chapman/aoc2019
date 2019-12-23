@@ -65,7 +65,7 @@ theMachine :: Eff ()
 theMachine = loop 0
   where
     loop pos = do
-      PrintState pos
+      --PrintState pos
       i <- ReadMem pos
       let u:t:rest = splitDigits i
       let op = decodeOp (10*t+u)
@@ -158,7 +158,7 @@ data Eff a where
   PutOutput :: Int -> Eff ()
   AdjustRelBase :: Int -> Eff ()
   GetRelBase :: Eff Pos
-  PrintState :: Pos -> Eff ()
+  --PrintState :: Pos -> Eff ()
 
 newtype Pos = Pos Int deriving (Eq,Ord,Num,Enum,Show)
 
@@ -182,4 +182,4 @@ runEff eff (Prog prog) = loop state0 (\() _ -> Halt) eff
       AdjustRelBase v -> k () (s { relbase = v + relbase s })
       GetRelBase -> k (Pos (relbase s)) s
       GetInput -> Input $ \x -> k x s
-      PrintState pos -> Internal (pos,s) (k () s)
+      --PrintState pos -> Internal (pos,s) (k () s)

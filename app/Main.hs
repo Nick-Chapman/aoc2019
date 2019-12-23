@@ -21,6 +21,7 @@ import qualified Day16
 import qualified Day17
 import qualified Day18
 import qualified Day19
+import qualified Day23
 
 import qualified Assemble
 
@@ -52,4 +53,8 @@ mains =
     , Day17.main
     , Day18.main
     , Day19.main
+    , return ()
+    , return ()
+    , return ()
+    , Day23.main
     ]
