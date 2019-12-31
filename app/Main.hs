@@ -23,6 +23,7 @@ import qualified Day18
 import qualified Day19
 import qualified Day22
 import qualified Day23
+import qualified Day25
 
 import qualified Assemble
 
@@ -30,6 +31,7 @@ main :: IO ()
 main = do
   getArgs >>= \case
     ["--ass"] -> Assemble.main
+    ["--adventure"] -> Day25.adventure
     [] -> mapM_ id mains
     args -> mapM_ (\day -> mains !! (read day - 1)) args
 
@@ -58,4 +60,6 @@ mains =
     , return ()
     , Day22.main
     , Day23.main
+    , return ()
+    , Day25.main
     ]
