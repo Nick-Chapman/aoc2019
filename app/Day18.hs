@@ -9,7 +9,8 @@ import Data.Set (Set)
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Prelude hiding(init)
-import Search (Linkage(..),bfsWaves,BfsWave(..))
+import Search (Linkage(..),bfsWaves,BfsWave(..),
+              DLink(..),dijkstra,DWave(..))
 
 main :: IO ()
 main = do
@@ -25,7 +26,7 @@ main = do
         ,"#d.....................#"
         ,"########################"
         ]
-  let p1_x4 = unlines
+  let _p1_x4 = unlines
         [""
         ,"#################"
         ,"#i.G..c...e..H.p#"
@@ -62,21 +63,81 @@ main = do
 
   putStrLn $ "day18, part1 (example1) = " <> show (check (part1 p1_x1) 8)
   putStrLn $ "day18, part1 (example2) = " <> show (check (part1 p1_x2) 86)
-  putStrLn $ "day18, part1 (example4) = " <> show (check (part1 p1_x4) 136)
+  --putStrLn $ "day18, part1 (example4) = " <> show (check (part1 _p1_x4) 136)
 
   putStrLn $ "day18, part2 (example1) = " <> show (check (part2 p2_x1) 8)
   putStrLn $ "day18, part2 (example4) = " <> show (check (part2 p2_x4) 72)
 
   _input1 <- readFile "/home/nic/code/advent/input/day18.input"
-  _explore1 _input1 -- takes about 19s
+
+  --_explore1 _input1 -- takes about 19s
+  --_explore1new _input1 -- takes about 16s
+
   --putStrLn $ "day18, part1 (ANSWER) = " <> show (check (part1 _input1) 4590)
 
   _input2 <- readFile "/home/nic/code/advent/input/day18.input2"
+
   --_explore2 _input2 -- 2086 (takes about 10 minutes!)
+  -- _explore2new _input2 -- WORSE
+
   --putStrLn $ "day18, part2 (ANSWER) = " <> show (check (part2 _input2) 2086)
 
   return ()
 
+----------------------------------------------------------------------
+
+_explore1new :: String -> IO ()
+_explore1new s = do
+  let w = parseWorld s
+  let state0 = initState w
+  let waves = dijkstra (DLink {linkD = macroStep w}) state0
+  let final = finalState w
+  let continue DWave{state} = not $ final state
+  let (ws1,ws2) = span continue waves
+  mapM_ printDW ws1
+  printDW (head ws2)
+  where
+    printDW (DWave {state,distance,visitedD}) =
+      print (distance,state, Set.size visitedD)
+
+
+macroStep :: World -> State -> [(Int,State)]
+macroStep w state = do
+  let (_,found) = state
+  let step = \s@(_,found') -> if found == found' then steps w s else []
+  let waves = bfsWaves (Linkage step) [state]
+  [ (i,s) | (i,BfsWave{frontier}) <- zip [0::Int ..] waves
+          , s@(_,found') <- Set.toList frontier
+          , found' /= found
+          ]
+
+
+_explore2new :: String -> IO ()
+_explore2new s = do
+  let w = parseWorld s
+  let state0 = initState2 w
+  let waves = dijkstra (DLink {linkD = macroStep2 w}) state0
+  let final = finalState2 w
+  let continue DWave{state} = not $ final state
+  let (ws1,ws2) = span continue waves
+  mapM_ printDW ws1
+  printDW (head ws2)
+  where
+    printDW (DWave {state,distance,visitedD}) =
+      print (distance,state, Set.size visitedD)
+
+macroStep2 :: World -> State2 -> [(Int,State2)]
+macroStep2 w state = do
+  let (_,_,_,_,_,found) = state
+  let step = \s@(_,_,_,_,_,found') -> if found == found' then steps2 w s else []
+  let waves = bfsWaves (Linkage step) [state]
+  [ (i,s) | (i,BfsWave{frontier}) <- zip [0::Int ..] waves
+          , s@(_,_,_,_,_,found') <- Set.toList frontier
+          , found' /= found
+          ]
+
+
+----------------------------------------------------------------------
 part1 :: String -> Int
 part1 s = length $ part1waves s
 
@@ -127,7 +188,7 @@ part1search w = Search
   }
 
 initState :: World -> [State]
-initState world = [(findEntrance world,found0)]
+initState w = [(findEntrance w,found0)]
 
 finalState :: World -> State -> Bool
 finalState world = do
@@ -194,7 +255,7 @@ onkey world pos = do
 
 
 --newtype Found = Found (Set KeyId) deriving (Eq,Ord)
-newtype Found = Found [KeyId] deriving (Eq,Ord) -- 19s vs 28s for alt rep, on part 1
+newtype Found = Found [KeyId] deriving (Eq,Ord,Show) -- 19s vs 28s for alt rep, on part 1
 
 mkFound :: Set KeyId -> Found
 mkFound set = Found $ sort (Set.toList set)
