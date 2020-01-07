@@ -5,7 +5,7 @@ module IntMachine( -- This is the Day9 machine
   loadFile,
 
   Process(..),
-  
+
   exec,  -- [Int] -> [Int]
   execA, -- [Int] -> [Act]
   execP, -- Process

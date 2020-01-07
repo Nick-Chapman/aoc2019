@@ -21,6 +21,7 @@ import qualified Day16
 import qualified Day17
 import qualified Day18
 import qualified Day19
+import qualified Day21
 import qualified Day22
 import qualified Day23
 import qualified Day25
@@ -57,7 +58,7 @@ mains =
     , Day18.main
     , Day19.main
     , return ()
-    , return ()
+    , Day21.main
     , Day22.main
     , Day23.main
     , return ()
