@@ -13,21 +13,13 @@ _main = do
 main :: IO ()
 main = do
   part1
+  part2
   --_explore
-
 
 part1 :: IO ()
 part1 = do
   prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
-  let is =
-        [ Instruction OrK (Left (Sensor 4)) J
-        , Instruction NotK (Left (Sensor 3)) T
-        , Instruction AndK (Right T) J
-        , Instruction NotK (Left (Sensor 1)) T
-        , Instruction OrK (Right T) J
-        ]
-  let codeString = showCode "WALK" is
-  --putStrLn codeString
+  codeString <- readFile  "/home/nic/code/advent/day21.part1.solution"
   let output = IM.exec prog (map Char.ord codeString)
   let num = last output
   if num > 255
@@ -36,6 +28,20 @@ part1 = do
     do
       putStrLn $ map Char.chr output
 
+part2 :: IO ()
+part2 = do
+  prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
+  codeString <- readFile  "/home/nic/code/advent/day21.part2.solution"
+  let output = IM.exec prog (map Char.ord codeString)
+  let num = last output
+  if num > 255
+    then putStrLn $ "day21, part2 = " <> show (check num 1147582556)
+    else
+    do
+      putStrLn $ map Char.chr output
+
+----------------------------------------------------------------------
+-- rubbish below here...
 
 _explore :: IO ()
 _explore = do
