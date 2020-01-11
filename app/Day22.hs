@@ -32,7 +32,7 @@ main = do
   print (check (_xpart1 (M 10) _x4) [9,2,5,8,1,4,7,0,3,6])
 
   putStrLn $ "day22, part1 = " <> show (check (part1 s) 3324)
-  putStrLn $ "day22, part2 = " <> show (check (part2 s) 5184296506541) -- wrong answer
+  putStrLn $ "day22, part2 = " <> show (check (part2 s) 74132511136410)
 
 check :: (Eq a, Show a) => a -> a -> a
 check x y = if x == y then x else error (show (x,y))
@@ -89,10 +89,19 @@ seqF (F f) (F g) = F $ \(M m) -> do
   let F1{n=n2,a=a2} = g (M m)
   F1 {n = n2*n1 `mod` m, a = (n2 * a1 + a2) `mod` m}
 
-repeatF :: Inty -> F -> F -- THIS IS WRONG
-repeatF r (F f) = F $ \(M m) -> do
+repeatF :: Inty -> F -> F
+repeatF k (F f) = F $ \(M m) -> do
   let F1{n,a} = f (M m)
-  F1{ n = r * n `mod` m, a = r * a `mod` m }
+  let nk = pow (M m) n k
+  let n' = nk
+  let a' = a * (1 - nk) * moduloInverseChecked (M m) (1 - n)
+  F1 { n = n', a = a' }
+
+pow :: M -> Inty -> Inty -> Inty
+pow (M m) n k =
+  if k == 1 then n else do
+    let h = pow (M m) n (k `div` 2)
+    h * h * (if k `mod` 2 == 1 then n else 1) `mod` m
 
 invertF :: F -> F
 invertF (F f) = F $ \(M m) -> do
