@@ -20,7 +20,7 @@ main = do
   --_xpart2 10 example
   putStrLn $ "day24, part2 (example) = " <> show (check (part2 10 example) 99)
 
-  _xpart2 200 full
+  --_xpart2 200 full
   --putStrLn $ "day24, part2 (full) = " <> show (check (part2 200 full) 2067)
 
 check :: (Eq a, Show a) => a -> a -> a
@@ -63,11 +63,14 @@ parse str = do
 
 step :: (Pos -> [Pos]) -> State -> State
 step neighbours (State set) = State set' where
-  set' = Set.filter nextGen $ image neighbours set
+  set' = Set.filter inNextGen $ image neighbours set
   isOn pos = pos `elem` set
-  nextGen pos = do
-    let count = length $ filter isOn (neighbours pos)
-    count == 1 || not (isOn pos) && count == 2
+  inNextGen pos = do
+    case filter isOn (neighbours pos) of
+      [] -> False
+      [_] -> True
+      [_,_] -> not (isOn pos)
+      _ -> False
 
 rate :: State -> Int
 rate (State set) = do
