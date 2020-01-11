@@ -1,14 +1,11 @@
 
 module Day22 (main) where
 
---import qualified Data.Set as Set
-
 main :: IO ()
 main = do
   let _x1 = unlines ["deal with increment 7" ,"deal into new stack" ,"deal into new stack"]
   let _x2 = unlines ["cut 6","deal with increment 7","deal into new stack"]
   let _x3 = unlines ["deal with increment 7", "deal with increment 9", "cut -2"]
-
   let _x4 = unlines
         ["deal into new stack"
         ,"cut -2"
@@ -22,57 +19,59 @@ main = do
         ,"cut -1"
         ]
 
-  --print (check (_xpart1 10 _x1) [0,3,6,9,2,5,8,1,4,7])
-  --print (check (_xpart1 10 _x2) [3,0,7,4,1,8,5,2,9,6])
-  --print (check (_xpart1 10 _x3) [6,3,0,7,4,1,8,5,2,9])
-  --print (check (_xpart1 10 _x4) [9,2,5,8,1,4,7,0,3,6])
-
   s <- readFile "/home/nic/code/advent/input/day22.input"
-  --mapM_ print (map parse (lines s))
 
-  --print $ Set.size $ Set.fromList $ _xpart1 10007 s
-
-  --print $ (xpart1 10007 s) !! 2019
+  print (check (_xpart1 (M 10) _x1) [0,3,6,9,2,5,8,1,4,7])
+  print (check (_xpart1 (M 10) _x2) [3,0,7,4,1,8,5,2,9,6])
+  print (check (_xpart1 (M 10) _x3) [6,3,0,7,4,1,8,5,2,9])
+  print (check (_xpart1 (M 10) _x4) [9,2,5,8,1,4,7,0,3,6])
 
   putStrLn $ "day22, part1 = " <> show (check (part1 s) 3324)
 
+check :: (Eq a, Show a) => a -> a -> a
+check x y = if x == y then x else error (show (x,y))
 
 part1 :: String -> Int
-part1 s = do
-  let m = 10007
-  let steps = map parse (lines s)
-  let f = compose (map (apply m) steps)
-  f 2019
+part1 str = applyF (makeF (M 10007) str) 2019
 
-_xpart1 :: Int -> String -> [Int]
-_xpart1 m s = do
-  let steps = map parse (lines s)
-  let f = compose (map (apply m) steps)
-  trans $ map f [0..m-1]
+_xpart1 :: M -> String -> [Int]
+_xpart1 (M m) str = do
+  let f = makeF (M m) str
+  trans $ map (applyF f) [0..m-1]
 
 trans :: [Int] -> [Int]
 trans xs = [ p | i <- [0.. length xs], (x,p) <- zip xs [0..], x == i ]
 
-compose :: [a -> a] -> a -> a
-compose = foldl1 (.) . reverse
+makeF :: M -> String -> F
+makeF m str = foldl1 seqF (map (parseF m) (lines str))
 
-parse :: String -> Step
-parse s = case words s of
-  ["deal","into","new","stack"] -> Reverse
-  ["deal","with","increment",n] -> DealInc (read n)
-  ["cut",n] -> Cut (read n)
+parseF :: M -> String -> F
+parseF m s = case words s of
+  ["deal","into","new","stack"] -> reverseF m
+  ["deal","with","increment",a] -> dealInc (read a) m
+  ["cut",a] -> cutF (read a) m
   _ -> error s
 
-data Step = Reverse | Cut Int | DealInc Int deriving Show
+newtype M = M Int
+newtype F = F (Int -> Int)
 
-apply :: Int -> Step -> Int -> Int
-apply m = \case
-  Reverse -> \i -> m - i - 1
-  Cut n -> \i -> (i-n) `mod` m
-  DealInc a -> do
-    --let b = moduloInverseChecked m a
-    \i -> (a*i) `mod` m
+applyF :: F -> Int -> Int
+applyF (F f) x = f x
 
+seqF :: F -> F -> F
+seqF (F f) (F g) = F (g . f) -- opposite order to normal `(.)` function composition
+
+reverseF :: M -> F
+reverseF (M m) = F (\i -> m - i - 1)
+
+cutF :: Int -> M -> F
+cutF n (M m) = F (\i -> (i - n) `mod` m)
+
+dealInc :: Int -> M -> F
+dealInc n (M m) = F (\i -> (n * i) `mod` m)
+
+
+----------------------------------------------------------------------
 
 {-
 _moduloInversePrint :: (Int,Int) -> IO ()
@@ -82,7 +81,7 @@ _moduloInversePrint (m,a) = do
 -}
 
 
-
+{-
 _moduloInverseChecked :: Int -> Int -> Int
 _moduloInverseChecked m a = do
   let b = moduloInverse m a
@@ -112,7 +111,4 @@ moduloInverse m a =
     mods :: Int -> Int -> Int
     mods x p = if y >= 0 then y else y + p where y = mod x p
 
-
-
-check :: (Eq a, Show a) => a -> a -> a
-check x y = if x == y then x else error (show (x,y))
+-}
