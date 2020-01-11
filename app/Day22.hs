@@ -62,16 +62,21 @@ dealInc :: Int -> F
 dealInc n = anyShuffle n 0
 
 newtype M = M Int
-newtype F = F (M -> Int -> Int)
+
+type F = [F1]
+data F1 = F1 { n :: Int, a :: Int }
+
+applyF1 :: F1 -> M -> Int -> Int
+applyF1 F1{n,a} (M m) = \i -> (n * i + a) `mod` m
 
 applyF :: F -> M -> Int -> Int
-applyF (F f) m x = f m x
+applyF f1s m = foldl1 (.) $ map (flip applyF1 m) (reverse f1s)
 
-seqF :: F -> F -> F
-seqF (F f) (F g) = F (\m -> g m . f m) -- opposite order to normal `(.)` function composition
+seqF :: F -> F -> F -- opposite order to normal `(.)` function composition
+seqF = (++)
 
 anyShuffle :: Int -> Int -> F
-anyShuffle n a = F (\(M m) i -> (n * i + a) `mod` m)
+anyShuffle n a = [F1 {n,a}]
 
 
 ----------------------------------------------------------------------
