@@ -52,6 +52,15 @@ parseF s = case words s of
   ["cut",a] -> cutF (read a)
   _ -> error s
 
+reverseF :: F
+reverseF = anyShuffle (-1) (-1)
+
+cutF :: Int -> F
+cutF a = anyShuffle 1 (-a)
+
+dealInc :: Int -> F
+dealInc n = anyShuffle n 0
+
 newtype M = M Int
 newtype F = F (M -> Int -> Int)
 
@@ -61,14 +70,8 @@ applyF (F f) m x = f m x
 seqF :: F -> F -> F
 seqF (F f) (F g) = F (\m -> g m . f m) -- opposite order to normal `(.)` function composition
 
-reverseF :: F
-reverseF = F (\(M m) i -> m - i - 1)
-
-cutF :: Int -> F
-cutF n = F (\(M m) i -> (i - n) `mod` m)
-
-dealInc :: Int -> F
-dealInc n = F (\(M m) i -> (n * i) `mod` m)
+anyShuffle :: Int -> Int -> F
+anyShuffle n a = F (\(M m) i -> (n * i + a) `mod` m)
 
 
 ----------------------------------------------------------------------
