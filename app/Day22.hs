@@ -36,11 +36,8 @@ part1 str = applyF (makeF str) (M 10007) 2019
 
 _xpart1 :: M -> String -> [Int]
 _xpart1 (M m) str = do
-  let f = makeF str
-  trans $ map (applyF f (M m)) [0..m-1]
-
-trans :: [Int] -> [Int]
-trans xs = [ p | i <- [0.. length xs], (x,p) <- zip xs [0..], x == i ]
+  let func = applyF (invertF (makeF str)) (M m)
+  map func [0..m-1]
 
 makeF :: String -> F
 makeF str = foldl1 seqF (map parseF (lines str))
@@ -74,6 +71,10 @@ applyF f m = applyF1 (f m) m
 seqF :: F -> F -> F
 seqF f g m = seqF1 m (f m) (g m)
 
+invertF :: F -> F
+invertF f = \m -> invertF1 m (f m)
+
+
 data F1 = F1 { n :: Int, a :: Int }
 
 applyF1 :: F1 -> M -> Int -> Int
@@ -82,27 +83,19 @@ applyF1 F1{n,a} (M m) = \i -> (n * i + a) `mod` m
 seqF1 :: M -> F1 -> F1 -> F1  -- opposite order to normal `(.)` function composition
 seqF1 (M m) F1{n=n1,a=a1} F1{n=n2,a=a2} = F1 {n = (n2*n1) `mod` m, a = (n2 * a1 + a2) `mod` m}
 
+invertF1 :: M -> F1 -> F1
+invertF1 (M m) F1{n,a} = do
+  let n' = moduloInverse (M m) n --Checked (M m) n
+  F1 {n = n', a = n' * (-a) }
 
-----------------------------------------------------------------------
-
-{-
-_moduloInversePrint :: (Int,Int) -> IO ()
-_moduloInversePrint (m,a) = do
-  let b = moduloInverseChecked m a
-  print (m,a,b)
--}
-
-
-{-
-_moduloInverseChecked :: Int -> Int -> Int
-_moduloInverseChecked m a = do
-  let b = moduloInverse m a
+_moduloInverseChecked :: M -> Int -> Int
+_moduloInverseChecked (M m) a = do
+  let b = moduloInverse (M m) a
   let check = (a * b) `mod` m
   if check == 1 then b else error $ "moduloInverse" <> show (m,a,b)
 
-
-moduloInverse :: Int -> Int -> Int
-moduloInverse m a =
+moduloInverse :: M -> Int -> Int
+moduloInverse (M m) a =
   inverseMod a m
   where
     inverseMod :: Int -> Int -> Int
@@ -123,4 +116,3 @@ moduloInverse m a =
     mods :: Int -> Int -> Int
     mods x p = if y >= 0 then y else y + p where y = mod x p
 
--}
