@@ -32,43 +32,43 @@ check :: (Eq a, Show a) => a -> a -> a
 check x y = if x == y then x else error (show (x,y))
 
 part1 :: String -> Int
-part1 str = applyF (makeF (M 10007) str) 2019
+part1 str = applyF (makeF str) (M 10007) 2019
 
 _xpart1 :: M -> String -> [Int]
 _xpart1 (M m) str = do
-  let f = makeF (M m) str
-  trans $ map (applyF f) [0..m-1]
+  let f = makeF str
+  trans $ map (applyF f (M m)) [0..m-1]
 
 trans :: [Int] -> [Int]
 trans xs = [ p | i <- [0.. length xs], (x,p) <- zip xs [0..], x == i ]
 
-makeF :: M -> String -> F
-makeF m str = foldl1 seqF (map (parseF m) (lines str))
+makeF :: String -> F
+makeF str = foldl1 seqF (map parseF (lines str))
 
-parseF :: M -> String -> F
-parseF m s = case words s of
-  ["deal","into","new","stack"] -> reverseF m
-  ["deal","with","increment",a] -> dealInc (read a) m
-  ["cut",a] -> cutF (read a) m
+parseF :: String -> F
+parseF s = case words s of
+  ["deal","into","new","stack"] -> reverseF
+  ["deal","with","increment",a] -> dealInc (read a)
+  ["cut",a] -> cutF (read a)
   _ -> error s
 
 newtype M = M Int
-newtype F = F (Int -> Int)
+newtype F = F (M -> Int -> Int)
 
-applyF :: F -> Int -> Int
-applyF (F f) x = f x
+applyF :: F -> M -> Int -> Int
+applyF (F f) m x = f m x
 
 seqF :: F -> F -> F
-seqF (F f) (F g) = F (g . f) -- opposite order to normal `(.)` function composition
+seqF (F f) (F g) = F (\m -> g m . f m) -- opposite order to normal `(.)` function composition
 
-reverseF :: M -> F
-reverseF (M m) = F (\i -> m - i - 1)
+reverseF :: F
+reverseF = F (\(M m) i -> m - i - 1)
 
-cutF :: Int -> M -> F
-cutF n (M m) = F (\i -> (i - n) `mod` m)
+cutF :: Int -> F
+cutF n = F (\(M m) i -> (i - n) `mod` m)
 
-dealInc :: Int -> M -> F
-dealInc n (M m) = F (\i -> (n * i) `mod` m)
+dealInc :: Int -> F
+dealInc n = F (\(M m) i -> (n * i) `mod` m)
 
 
 ----------------------------------------------------------------------
