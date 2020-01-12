@@ -9,7 +9,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 
 newtype Linkage a = Linkage { link :: a -> [a] }
-data BfsWave a = BfsWave { frontier :: Set a, visited :: Set a }
+data BfsWave a = BfsWave { frontier :: Set a, visited :: Set a } deriving Show
 
 {-
 _bfsWaves :: forall a. Ord a => Linkage a -> [a] -> [ BfsWave a ]
