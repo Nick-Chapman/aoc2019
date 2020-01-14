@@ -2,3 +2,5 @@
 *.cabal
 *~
 .markdown-preview.html
+Cargo.lock
+rust/target
