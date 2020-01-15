@@ -4,7 +4,8 @@ use std::fs;
 
 pub fn main() {
     let full = read_intcode("../input/day5.input");
-    println!("day5, part1 = {}", check (part1 (&full),2845163))
+    println!("day5, part1 = {}", check (part1 (&full),2845163));
+    println!("day5, part2 = {}", check (part2 (&full),9436229));
 }
 
 fn check(got : i64, expected : i64) -> i64 {
@@ -23,15 +24,19 @@ fn read_intcode(filename : &str) -> Vec<i64> {
     v
 }
 
-fn part1(init : &[i64]) -> i64 {
-    let mut m = Vec::new();
-    for x in init { m.push(*x) }
-    let results = run(&mut m, 1);
+fn part1(code : &[i64]) -> i64 {
+    let results = run(code, 1);
     //println!("Results:{:?}",results);
     *results.last().unwrap()
 }
 
-enum Op { Add, Mul, Input, Output, Halt }
+fn part2(code : &[i64]) -> i64 {
+    let results = run(code, 5);
+    //println!("Results:{:?}",results);
+    *results.last().unwrap()
+}
+
+enum Op { Add, Mul, Input, Output, JumpNZ, JumpZ, LessThan, Equals, Halt }
 
 fn decode_op(x : i64) -> Op {
     match x {
@@ -39,6 +44,10 @@ fn decode_op(x : i64) -> Op {
         2 => Op::Mul,
         3 => Op::Input,
         4 => Op::Output,
+        5 => Op::JumpNZ,
+        6 => Op::JumpZ,
+        7 => Op::LessThan,
+        8 => Op::Equals,
         99 => Op::Halt,
         _ => panic!("unknown Op: {}", x)
     }
@@ -54,9 +63,12 @@ fn decode_mode(x : i64) -> Mode {
     }
 }
 
-fn run(mem : &mut Vec<i64>, the_input : i64) -> Vec<i64> {
+fn run(code : &[i64], the_input : i64) -> Vec<i64> {
+    let mut mem = Vec::new();
     let mut ip : usize = 0;
     let mut output = Vec::new();
+
+    for x in code { mem.push(*x) }
 
     loop {
 
@@ -87,24 +99,56 @@ fn run(mem : &mut Vec<i64>, the_input : i64) -> Vec<i64> {
                 let a = read(ip+1,mode1);
                 let b = read(ip+2,mode2);
                 let res = a + b;
-                write(mem,ip+3,res);
+                write(&mut mem, ip+3,res);
                 ip += 4;
             }
             Op::Mul => {
                 let a = read(ip+1,mode1);
                 let b = read(ip+2,mode2);
                 let res = a * b;
-                write(mem,ip+3,res);
+                write(&mut mem,ip+3,res);
                 ip += 4;
             }
             Op::Input => {
-                write(mem,ip+1,the_input);
+                write(&mut mem,ip+1,the_input);
                 ip += 2;
             }
             Op::Output => {
                 let a = read(ip+1,mode1);
                 output.push(a);
                 ip += 2;
+            }
+            Op::JumpNZ => {
+                let a = read(ip+1,mode1);
+                if a != 0 {
+                    let dest : usize = read(ip+2,mode2).try_into().expect("jumpNZ");
+                    ip = dest;
+                } else {
+                    ip += 3;
+                }
+            }
+            Op::JumpZ => {
+                let a = read(ip+1,mode1);
+                if a == 0 {
+                    let dest : usize = read(ip+2,mode2).try_into().expect("jumpZ");
+                    ip = dest;
+                } else {
+                    ip += 3;
+                }
+            }
+            Op::LessThan => {
+                let a = read(ip+1,mode1);
+                let b = read(ip+2,mode2);
+                let res = if a < b { 1 } else { 0 };
+                write(&mut mem,ip+3,res);
+                ip += 4;
+            }
+            Op::Equals => {
+                let a = read(ip+1,mode1);
+                let b = read(ip+2,mode2);
+                let res = if a == b { 1 } else { 0 };
+                write(&mut mem,ip+3,res);
+                ip += 4;
             }
             Op::Halt => {
                 break
