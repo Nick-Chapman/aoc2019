@@ -1,7 +1,6 @@
 
 use std::io::BufReader;
 use std::io::BufRead;
-use std::process::exit;
 use std::fs::File;
 
 pub fn main() {
@@ -11,8 +10,7 @@ pub fn main() {
 
 fn check(got : i64, expected : i64) -> i64 {
    if got != expected {
-       println!("ensure failed: got: {}, expected: {}", got, expected);
-       exit(1)
+       panic!("ensure failed: got: {}, expected: {}", got, expected);
    }
    got
 }
