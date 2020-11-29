@@ -4,3 +4,4 @@
 .markdown-preview.html
 Cargo.lock
 rust/target
+stack.yaml.lock
