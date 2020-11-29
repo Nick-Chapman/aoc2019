@@ -19,7 +19,7 @@ main = do
 part1 :: IO ()
 part1 = do
   prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
-  codeString <- readFile  "/home/nic/code/advent/day21.part1.solution"
+  codeString <- readFile  "/home/nic/code/advent/haskell/day21.part1.solution"
   let output = IM.exec prog (map Char.ord codeString)
   let num = last output
   if num > 255
@@ -31,7 +31,7 @@ part1 = do
 part2 :: IO ()
 part2 = do
   prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
-  codeString <- readFile  "/home/nic/code/advent/day21.part2.solution"
+  codeString <- readFile  "/home/nic/code/advent/haskell/day21.part2.solution"
   let output = IM.exec prog (map Char.ord codeString)
   let num = last output
   if num > 255
