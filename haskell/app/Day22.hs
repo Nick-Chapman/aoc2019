@@ -24,7 +24,7 @@ main = do
         ,"cut -1"
         ]
 
-  s <- readFile "/home/nic/code/advent/input/day22.input"
+  s <- readFile "input/day22.input"
 
   print (check (_xpart1 (M 10) _x1) [0,3,6,9,2,5,8,1,4,7])
   print (check (_xpart1 (M 10) _x2) [3,0,7,4,1,8,5,2,9,6])

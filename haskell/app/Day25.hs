@@ -12,12 +12,12 @@ import qualified IntMachine as IM
 
 adventure :: IO ()
 adventure = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day25.input"
+  prog <- IM.loadFile "input/day25.input"
   interact (map Char.chr . IM.exec prog . map Char.ord)
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day25.input"
+  prog <- IM.loadFile "input/day25.input"
   password <- runPlan prog thePlan
   putStrLn $ "day25, part1 = " <> show (check password 319815680)
 

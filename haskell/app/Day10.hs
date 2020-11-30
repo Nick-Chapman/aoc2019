@@ -36,7 +36,7 @@ main = do
         ,"#.#.#.#####.####.###"
         ,"###.##.####.##.#..##"]
 
-  str10 <- readFile "/home/nic/code/advent/input/day10.input"
+  str10 <- readFile "input/day10.input"
 
   putStrLn $ "day10, part1, small  = " <> show (part1 small)
   putStrLn $ "day10, part1, big    = " <> show (part1 big)

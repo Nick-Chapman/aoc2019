@@ -9,7 +9,7 @@ import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day17.input"
+  prog <- IM.loadFile "input/day17.input"
 
   let output :: [Int] = IM.exec prog []
   let pic :: String = map Char.chr output

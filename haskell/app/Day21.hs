@@ -6,7 +6,7 @@ import qualified IntMachine as IM
 
 _main :: IO ()
 _main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
+  prog <- IM.loadFile "input/day21.input"
   interact (map Char.chr . IM.exec prog . map Char.ord)
 
 
@@ -18,8 +18,8 @@ main = do
 
 part1 :: IO ()
 part1 = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
-  codeString <- readFile  "/home/nic/code/advent/haskell/day21.part1.solution"
+  prog <- IM.loadFile "input/day21.input"
+  codeString <- readFile  "input/day21.part1.solution"
   let output = IM.exec prog (map Char.ord codeString)
   let num = last output
   if num > 255
@@ -30,8 +30,8 @@ part1 = do
 
 part2 :: IO ()
 part2 = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
-  codeString <- readFile  "/home/nic/code/advent/haskell/day21.part2.solution"
+  prog <- IM.loadFile "input/day21.input"
+  codeString <- readFile  "input/day21.part2.solution"
   let output = IM.exec prog (map Char.ord codeString)
   let num = last output
   if num > 255
@@ -45,7 +45,7 @@ part2 = do
 
 _explore :: IO ()
 _explore = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day21.input"
+  prog <- IM.loadFile "input/day21.input"
   let perms = boolPerms 0
   let _perms = [[False,True,False,False]]
   tryAttempts prog 0 perms

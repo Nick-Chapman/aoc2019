@@ -68,14 +68,14 @@ main = do
   putStrLn $ "day18, part2 (example1) = " <> show (check (part2 p2_x1) 8)
   putStrLn $ "day18, part2 (example4) = " <> show (check (part2 p2_x4) 72)
 
-  _input1 <- readFile "/home/nic/code/advent/input/day18.input"
+  _input1 <- readFile "input/day18.input"
 
   --_explore1 _input1 -- takes about 19s
   --_explore1new _input1 -- takes about 16s
 
   --putStrLn $ "day18, part1 (ANSWER) = " <> show (check (part1 _input1) 4590)
 
-  _input2 <- readFile "/home/nic/code/advent/input/day18.input2"
+  _input2 <- readFile "input/day18.input2"
 
   --_explore2 _input2 -- 2086 (takes about 10 minutes!)
   -- _explore2new _input2 -- WORSE

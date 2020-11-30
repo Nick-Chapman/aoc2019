@@ -9,9 +9,9 @@ import Search (bfsWaves,Linkage(..),frontier)
 
 main :: IO ()
 main = do
-  example1 <- readFile "/home/nic/code/advent/input/day20.example1"
-  full <- readFile "/home/nic/code/advent/input/day20.input"
-  example3 <- readFile "/home/nic/code/advent/input/day20.example3"
+  example1 <- readFile "input/day20.example1"
+  full <- readFile "input/day20.input"
+  example3 <- readFile "input/day20.example3"
 
   putStrLn $ "day20, part1 (example1) = " <> show (check (part1 example1) 23)
   putStrLn $ "day20, part1 (full)     = " <> show (check (part1 full) 516)

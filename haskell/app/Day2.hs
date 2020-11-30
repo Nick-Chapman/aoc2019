@@ -10,7 +10,7 @@ import qualified Data.Map.Strict as Map
 
 main :: IO ()
 main = do
-  str <- readFile "/home/nic/code/advent/input/day2.input"
+  str <- readFile "input/day2.input"
   let prog :: [Int] = map read (splitOn "," str)
   let part1 = run prog (machine 12 2)
   putStrLn $ "day2, part1 = " <> show part1 -- 6627023

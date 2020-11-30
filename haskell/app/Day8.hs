@@ -6,7 +6,7 @@ import Data.List.Split (chunksOf)
 
 main :: IO ()
 main = do
-  str8 <- readFile "/home/nic/code/advent/input/day8.input"
+  str8 <- readFile "input/day8.input"
   putStrLn $ "day8, part1 = " <> show (check (part1 str8) 1452)
   putStrLn $ "day8, part2 = " <> part2 str8 -- PHPEU
   where

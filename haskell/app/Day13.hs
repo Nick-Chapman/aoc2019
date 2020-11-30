@@ -9,7 +9,7 @@ import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day13.input"
+  prog <- IM.loadFile "input/day13.input"
   putStrLn $ "day13, part1 = " <> show (check (part1 prog) 236)
   let states = part2 prog
   when (showPictures) $ mapM_ (putStrLn . pictureState) states

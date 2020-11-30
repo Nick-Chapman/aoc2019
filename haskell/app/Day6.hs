@@ -8,7 +8,7 @@ main :: IO ()
 main = do
   --let str = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L"
   --let str = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L\nK)YOU\nI)SAN"
-  str <- readFile "/home/nic/code/advent/input/day6.input"
+  str <- readFile "input/day6.input"
   let dm :: DM = Map.fromList $ Prelude.map readEdge $ lines str
   putStrLn $ "day6, part1 = " <> show (fst $ part1 dm) -- 158090
   putStrLn $ "day6, part2 = " <> show (part2 dm) -- 241

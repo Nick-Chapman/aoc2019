@@ -7,7 +7,7 @@ main = do
   let ex1 = "80871224585914546619083218645595"
   putStrLn $ "day16, part1 (example1) = " <> show (check (part1 ex1) 24176176)
 
-  str <- readFile "/home/nic/code/advent/input/day16.input"
+  str <- readFile "input/day16.input"
   putStrLn $ "day16, part1 = " <> show (check (part1 str) 19239468)
 
   --let ex2 = "03036732577212944063491565474664"

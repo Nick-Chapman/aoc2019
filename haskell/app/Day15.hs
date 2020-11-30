@@ -12,7 +12,7 @@ doVisualize = False
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day15.input"
+  prog <- IM.loadFile "input/day15.input"
 
   let exploration :: [(Dir,State)] = runEff prog ai
 

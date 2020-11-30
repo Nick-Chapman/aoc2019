@@ -5,7 +5,7 @@ import qualified IntMachine as IM
 
 main :: IO ()
 main = do
-  prog <- IM.loadFile "/home/nic/code/advent/input/day19.input"
+  prog <- IM.loadFile "input/day19.input"
   -- _visualize prog
   putStrLn $ "day19, part1 = " <> show (check (part1 prog) 169)
   putStrLn $ "day19, part2 = " <> show (check (part2 prog) 7001134)
