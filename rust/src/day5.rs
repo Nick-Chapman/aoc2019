@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::fs;
 
 pub fn main() {
-    let full = read_intcode("../input/day5.input");
+    let full = read_intcode("../haskell/input/day5.input");
     println!("day5, part1 = {}", check (part1 (&full),2845163));
     println!("day5, part2 = {}", check (part2 (&full),9436229));
 }

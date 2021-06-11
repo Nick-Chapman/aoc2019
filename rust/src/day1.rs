@@ -16,7 +16,7 @@ fn check(got : i64, expected : i64) -> i64 {
 }
 
 fn part1() -> i64 {
-   let file = File::open("/home/nic/code/advent/input/day1.input").expect("day1 input");
+   let file = File::open("../haskell/input/day1.input").expect("day1 input");
    let mut buffer = BufReader::new(file);
    let mut acc = 0;
    loop {
@@ -30,7 +30,7 @@ fn part1() -> i64 {
 }
 
 fn part2() -> i64 {
-   let file = File::open("/home/nic/code/advent/input/day1.input").expect("day1 input");
+   let file = File::open("../haskell/input/day1.input").expect("day1 input");
    let mut buffer = BufReader::new(file);
    let mut acc = 0;
    loop {

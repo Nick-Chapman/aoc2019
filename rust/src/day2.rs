@@ -8,7 +8,7 @@ pub fn main() {
     run (&mut example1);
     println!("day2, part1(example1)   = {}", check (example1[0],3500));
 
-    let full = read_intcode("../input/day2.input");
+    let full = read_intcode("../haskell/input/day2.input");
     println!("day2, part1(full)       = {}", check (part1 (&full,12,2),6627023));
 
     println!("day2, part2(full)       = {}", check (part2 (&full),4019));
