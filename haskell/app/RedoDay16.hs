@@ -51,11 +51,7 @@ part2 s = do
 
 
 fast_step :: [Dig] -> [Dig]
-fast_step xs = scanr1 (\d s -> (d + s) `mod` 10) xs
-
-{-
-_scanSum :: [Dig] -> [Dig]
-_scanSum xs0 = loop (sig xs0) xs0
+fast_step xs0 = loop (sig xs0) xs0
   where
     loop :: Dig -> [Dig] -> [Dig]
     loop z = \case
@@ -64,10 +60,10 @@ _scanSum xs0 = loop (sig xs0) xs0
 
     sub z x = (10+z-x) `mod` 10
 
-sig :: [Dig] -> Dig -- sum digits modulo 10
-sig xs =
-  sum xs `mod` 10
--}
+    sig :: [Dig] -> Dig -- sum digits modulo 10
+    sig xs =
+      --sum xs `mod` 10 -- broken for Word8
+      foldr (\d s -> (d + s) `mod` 10) 0 xs
 
 rep :: [Dig] -> Int -> [Dig]
 rep xs = loop
