@@ -44,10 +44,10 @@ part2 s = do
     steps :: Signal -> [Signal]
     steps a = a : steps (step a)
 
-  let g0 = g0x_full
+  let g0 = drop k g0x_full
   let gs = steps g0
   let g100:_ = drop 100 gs
-  concat $ map show $ take 8 (drop k g100)
+  concat $ map show $ take 8 g100
 
 
 fast_step :: [Dig] -> [Dig]
