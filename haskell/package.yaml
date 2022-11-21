@@ -6,9 +6,6 @@ author:              Nick Chapman
 maintainer:          nic@amadido.co.uk
 github:              https://github.com/Nick-Chapman/advent.git
 
-extra-source-files:
-- README.md
-
 dependencies:
 - base >= 4.7 && < 5
 - containers
